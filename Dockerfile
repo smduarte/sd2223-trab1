@@ -8,3 +8,5 @@ COPY target/*jar-with-dependencies.jar sd2223.jar
 
 # copy the file of properties to the docker image
 COPY feeds.props feeds.props
+
+COPY tls /home /sd/
