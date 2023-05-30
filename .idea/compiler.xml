@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="sd2223-tp1" />
+        <module name="sd2223-tp2" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="sd2223-tp1" target="17" />
+      <module name="sd2223-tp2" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>
