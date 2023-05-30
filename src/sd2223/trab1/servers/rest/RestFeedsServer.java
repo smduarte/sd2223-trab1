@@ -10,22 +10,22 @@ import utils.Args;
 
 
 public class RestFeedsServer extends AbstractRestServer {
-	public static final int PORT = 4567;
-	
-	private static Logger Log = Logger.getLogger(RestFeedsServer.class.getName());
+    public static final int PORT = 4567;
 
-	RestFeedsServer() {
-		super( Log, Feeds.SERVICENAME, PORT);
-	}
-	
-	@Override
-	void registerResources(ResourceConfig config) {
-		config.register( Args.valueOf("-push", true) ? RestFeedsPushResource.class : RestFeedsPullResource.class ); 
-	}
-	
-	public static void main(String[] args) throws Exception {
-		Args.use( args );
-		Domain.set( args[0], Long.valueOf(args[1]));
-		new RestFeedsServer().start();
-	}	
+    private static Logger Log = Logger.getLogger(RestFeedsServer.class.getName());
+
+    RestFeedsServer() {
+        super(Log, Feeds.SERVICENAME, PORT);
+    }
+
+    @Override
+    void registerResources(ResourceConfig config) {
+        config.register(RestFeedsPushResource.class);
+    }
+
+    public static void main(String[] args) throws Exception {
+        Args.use(args);
+        Domain.set(args[0], Long.valueOf(args[1]));
+        new RestFeedsServer().start();
+    }
 }

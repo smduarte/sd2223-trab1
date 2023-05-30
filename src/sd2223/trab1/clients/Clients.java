@@ -12,8 +12,7 @@ import sd2223.trab1.clients.soap.SoapUsersClient;
 
 public class Clients {
 	public static final ClientFactory<Users> UsersClients = new ClientFactory<>(Users.SERVICENAME, RestUsersClient::new, SoapUsersClient::new);
-	
-	public static final ClientFactory<FeedsPull> FeedsPullClients = new ClientFactory<>(Feeds.SERVICENAME, RestFeedsPullClient::new, SoapFeedsPullClient::new);
+
 
 	public static final ClientFactory<FeedsPush> FeedsPushClients = new ClientFactory<>(Feeds.SERVICENAME, RestFeedsPushClient::new, SoapFeedsPushClient::new);	
 	
