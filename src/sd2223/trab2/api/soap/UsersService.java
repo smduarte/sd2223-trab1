@@ -11,7 +11,7 @@ public interface UsersService {
 
 	static final String NAME = "users";
 	static final String NAMESPACE = "http://sd2223";
-	static final String INTERFACE = "sd2223.trab1.api.soap.UsersService";
+	static final String INTERFACE = "sd2223.trab2.api.soap.UsersService";
 
 	/**
 	 * Creates a new user identified by name.

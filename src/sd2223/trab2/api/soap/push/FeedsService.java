@@ -7,7 +7,7 @@ import sd2223.trab2.api.soap.FeedsException;
 
 @WebService(serviceName=FeedsService.NAME, targetNamespace=FeedsService.NAMESPACE, endpointInterface=FeedsService.INTERFACE)
 public interface FeedsService extends sd2223.trab2.api.soap.FeedsService {
-	static final String INTERFACE = "sd2223.trab1.api.soap.push.FeedsService";
+	static final String INTERFACE = "sd2223.trab2.api.soap.push.FeedsService";
 	
 	@WebMethod
 	void push_PushMessage( PushMessage msg ) throws FeedsException ; 
