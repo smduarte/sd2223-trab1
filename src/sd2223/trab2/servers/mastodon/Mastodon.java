@@ -1,7 +1,10 @@
 package sd2223.trab2.servers.mastodon;
 
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -14,8 +17,10 @@ import com.google.gson.reflect.TypeToken;
 import sd2223.trab2.api.Message;
 import sd2223.trab2.api.java.Feeds;
 import sd2223.trab2.api.java.Result;
+import sd2223.trab2.servers.java.JavaFeedsPreconditions;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusArgs;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusResult;
+import sd2223.trab2.servers.rest.RestUsersServer;
 import utils.JSON;
 
 import static sd2223.trab2.api.java.Result.error;
@@ -29,9 +34,10 @@ public class Mastodon implements Feeds {
 
     static String MASTODON_SERVER_URI = MASTODON_NOVA_SERVER_URI;
 
-    private static final String clientKey = "<create your own>";
-    private static final String clientSecret = "<create your own>";
-    private static final String accessTokenStr = "<create your own>";
+    // Mesquita keys
+    private static final String clientKey = "7sfncEuTWxzLCnwQ1QKSaDKCvW4TCm5r-WsRHXcPJrM";
+    private static final String clientSecret = "OOwaxMqAN0KV-pgLvZSxhUR0Qdf7_RrxcWto7XSNaA4";
+    private static final String accessTokenStr = "PZytT-PiZGWA_aR1noXLS79t4eiXvINrGCLuZWzd4xQ";
 
     static final String STATUSES_PATH = "/api/v1/statuses";
     static final String TIMELINES_PATH = "/api/v1/timelines/home";
@@ -45,6 +51,8 @@ public class Mastodon implements Feeds {
 
     protected OAuth20Service service;
     protected OAuth2AccessToken accessToken;
+    private JavaFeedsPreconditions feedsPrec;
+    private static Logger Log = Logger.getLogger(Mastodon.class.getName());
 
     private static Mastodon impl;
 
@@ -72,18 +80,29 @@ public class Mastodon implements Feeds {
     @Override
     public Result<Long> postMessage(String user, String pwd, Message msg) {
         try {
-            final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
+            Log.fine("-----------------------------------------------------------");
+            Log.fine("OLLHHHHHHAAAAAAAAAAAA AAAAAAQUUUUUUUUIIIIIIIIII ----> " + user);
+            Log.fine("-----------------------------------------------------------");
 
-            JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
-                request.addBodyParameter(k, v.toString());
-            });
+            if(credentialsVerifier(user, pwd)) {
 
-            service.signRequest(accessToken, request);
+                Result<Long> result = feedsPrec.postMessage(user, pwd, msg);
+                if (!result.isOK())
+                    return error(result.error());
 
-            Response response = service.execute(request);
-            if (response.getCode() == HTTP_OK) {
-                var res = JSON.decode(response.getBody(), PostStatusResult.class);
-                return ok(res.getId());
+                final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
+
+                JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
+                    request.addBodyParameter(k, v.toString());
+                });
+
+                service.signRequest(accessToken, request);
+
+                Response response = service.execute(request);
+                if (response.getCode() == HTTP_OK) {
+                    var res = JSON.decode(response.getBody(), PostStatusResult.class);
+                    return ok(res.getId());
+                }
             }
         } catch (Exception x) {
             x.printStackTrace();
@@ -141,5 +160,15 @@ public class Mastodon implements Feeds {
     @Override
     public Result<Void> deleteUserFeed(String user) {
         return null;
+    }
+
+    private boolean credentialsVerifier(String user, String pwd) throws IOException, ExecutionException, InterruptedException {
+        final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(VERIFY_CREDENTIALS_PATH));
+
+        service.signRequest(accessToken, request);
+
+        Response response = service.execute(request);
+
+        return response.getCode() == HTTP_OK;
     }
 }
