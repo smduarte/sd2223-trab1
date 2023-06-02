@@ -31,7 +31,7 @@ public abstract class JavaFeedsCommon<T extends Feeds>  implements Feeds {
 	protected Map<Long, Message> messages = new ConcurrentHashMap<>();
 	protected Map<String, FeedInfo> feeds = new ConcurrentHashMap<>();
 
-	static protected record FeedInfo(String user, Set<Long> messages, Set<String> following, Set<String> followees) {
+	public static record FeedInfo(String user, Set<Long> messages, Set<String> following, Set<String> followees) {
 		public FeedInfo(String user) {
 			this(user, new HashSet<>(), new HashSet<>(), ConcurrentHashMap.newKeySet());
 		}

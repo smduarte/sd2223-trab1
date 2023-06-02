@@ -8,6 +8,7 @@ sd2223\trab2\api\rest\UsersService.class
 sd2223\trab2\clients\rest\RestUsersClient.class
 sd2223\trab2\servers\rest\RestResource$1.class
 sd2223\trab2\clients\rest\RestFeedsClient$1.class
+sd2223\trab2\servers\kafka\KafkaUtils.class
 sd2223\trab2\servers\mastodon\MastodonApi$InstanceHolder.class
 sd2223\trab2\servers\java\JavaFeedsPreconditions$1.class
 sd2223\trab2\api\java\Feeds.class
@@ -22,6 +23,7 @@ sd2223\trab2\clients\soap\SoapClient$ResultSupplier.class
 sd2223\trab2\api\java\Result.class
 sd2223\trab2\api\soap\push\FeedsService.class
 sd2223\trab2\api\soap\FeedsException.class
+aula10\kafka\sync\SyncPoint.class
 sd2223\trab2\servers\rest\RestUsersServer.class
 sd2223\trab2\servers\java\JavaUsers.class
 sd2223\trab2\servers\soap\SoapFeedsWebService.class
@@ -40,6 +42,7 @@ sd2223\trab2\api\java\OkResult.class
 sd2223\trab2\clients\rest\RestClient.class
 sd2223\trab2\api\rest\FeedsServicePush.class
 sd2223\trab2\servers\soap\SoapUsersServer.class
+sd2223\trab2\servers\kafka\KafkaPublisher.class
 sd2223\trab2\servers\rest\RestFeedsServer.class
 sd2223\trab2\servers\rest\RestFeedsPushResource.class
 sd2223\trab2\servers\rest\RestUsersResource.class
@@ -55,6 +58,7 @@ sd2223\trab2\api\PushMessage.class
 sd2223\trab2\clients\soap\SoapFeedsClient.class
 sd2223\trab2\servers\Domain.class
 sd2223\trab2\api\soap\UsersService.class
+sd2223\trab2\servers\kafka\KafkaSubscriber.class
 sd2223\trab2\servers\java\JavaFeedsPushPreconditions.class
 sd2223\trab2\servers\rest\RestProxyFeedsResource.class
 sd2223\trab2\servers\mastodon\Mastodon$1.class
@@ -62,6 +66,7 @@ sd2223\trab2\servers\java\AbstractServer.class
 sd2223\trab2\servers\java\JavaFeedsPush.class
 sd2223\trab2\tls\InsecureHostnameVerifier.class
 sd2223\trab2\api\java\Result$ErrorCode.class
+sd2223\trab2\servers\kafka\RecordProcessor.class
 sd2223\trab2\discovery\Discovery.class
 sd2223\trab2\servers\soap\SoapFeedsServer.class
 sd2223\trab2\api\soap\UsersException.class

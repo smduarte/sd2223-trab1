@@ -33,7 +33,7 @@ public class Mastodon implements Feeds {
     static String MASTODON_NOVA_SERVER_URI = "http://10.170.138.52:3000";
     static String MASTODON_SOCIAL_SERVER_URI = "https://mastodon.social";
 
-    static String MASTODON_SERVER_URI = MASTODON_NOVA_SERVER_URI;
+    static String MASTODON_SERVER_URI = MASTODON_SOCIAL_SERVER_URI;
 
     // Mesquita keys
     private static final String clientKey = "7sfncEuTWxzLCnwQ1QKSaDKCvW4TCm5r-WsRHXcPJrM";
@@ -83,9 +83,6 @@ public class Mastodon implements Feeds {
     public Result<Long> postMessage(String user, String pwd, Message msg) {
 
         try {
-            Log.fine("-----------------------------------------------------------");
-            Log.fine("OLLHHHHHHAAAAAAAAAAAA AAAAAAQUUUUUUUUIIIIIIIIII ----> " + user);
-            Log.fine("-----------------------------------------------------------");
 
             if (credentialsVerifier(user, pwd)) {
 
