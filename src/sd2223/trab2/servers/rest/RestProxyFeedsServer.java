@@ -22,6 +22,7 @@ public class RestProxyFeedsServer extends AbstractRestServer {
     }
 
     public static void main(String[] args) throws Exception {
+
         Args.use(args);
         Domain.set(args[0], Long.parseLong(args[1]));
         new RestProxyFeedsServer().start();
