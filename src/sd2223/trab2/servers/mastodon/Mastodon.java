@@ -123,7 +123,21 @@ public class Mastodon implements Feeds {
 
     @Override
     public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
-        return error(NOT_IMPLEMENTED);
+
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH + "/%d", mid));
+            service.signRequest(accessToken, request);
+
+            Response response = service.execute(request);
+            if (response.getCode() == HTTP_OK) {
+                return ok();
+            }
+
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+        return error(Result.ErrorCode.INTERNAL_ERROR);
+
     }
 
     @Override
