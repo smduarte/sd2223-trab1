@@ -42,6 +42,7 @@ C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\api\java\FeedsPush.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\utils\Sleep.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\utils\IP.java
+C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\rest\RepFeeds.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\java\JavaFeedsPreconditions.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\rest\RestResource.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\soap\SoapFeedsPushWebService.java
@@ -55,11 +56,13 @@ C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\api\soa
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\kafka\KafkaSubscriber.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\soap\AbstractSoapServer.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\rest\GenericExceptionMapper.java
+C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\rest\RestRepFeedsResource.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\api\java\Result.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\rest\RestFeedsPushResource.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\api\rest\FeedsServicePush.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\kafka\sync\SyncPoint.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\api\java\Users.java
+C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\rest\RestRepFeedsServer.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\rest\RestUsersResource.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\java\JavaFeedsCommon.java
 C:\Users\Ana Carolina Gadelha\IdeaProjects\sd2223-trab2\src\sd2223\trab2\servers\java\JavaFeedsPushPreconditions.java

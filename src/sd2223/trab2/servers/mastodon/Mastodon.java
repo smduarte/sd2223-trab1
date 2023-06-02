@@ -30,15 +30,16 @@ import static sd2223.trab2.api.java.Result.ErrorCode.*;
 
 public class Mastodon implements Feeds {
 
+
     static String MASTODON_NOVA_SERVER_URI = "http://10.170.138.52:3000";
     static String MASTODON_SOCIAL_SERVER_URI = "https://mastodon.social";
 
-    static String MASTODON_SERVER_URI = MASTODON_SOCIAL_SERVER_URI;
+    static String MASTODON_SERVER_URI = MASTODON_NOVA_SERVER_URI;
 
-    // Mesquita keys
     private static final String clientKey = "7sfncEuTWxzLCnwQ1QKSaDKCvW4TCm5r-WsRHXcPJrM";
     private static final String clientSecret = "OOwaxMqAN0KV-pgLvZSxhUR0Qdf7_RrxcWto7XSNaA4";
     private static final String accessTokenStr = "_08uoZNcGT3wwofiE6XLIwopV0tUUdPMxz_CbuenW3Q";
+
 
     static final String STATUSES_PATH = "/api/v1/statuses";
     static final String TIMELINES_PATH = "/api/v1/timelines/home";
@@ -52,8 +53,6 @@ public class Mastodon implements Feeds {
 
     protected OAuth20Service service;
     protected OAuth2AccessToken accessToken;
-    private JavaFeedsPreconditions feedsPrec;
-    private static Logger Log = Logger.getLogger(Mastodon.class.getName());
 
     private static Mastodon impl;
 
@@ -61,7 +60,6 @@ public class Mastodon implements Feeds {
         try {
             service = new ServiceBuilder(clientKey).apiSecret(clientSecret).build(MastodonApi.instance());
             accessToken = new OAuth2AccessToken(accessTokenStr);
-            feedsPrec = new JavaFeedsPushPreconditions();
         } catch (Exception x) {
             x.printStackTrace();
             System.exit(0);
@@ -81,28 +79,19 @@ public class Mastodon implements Feeds {
 
     @Override
     public Result<Long> postMessage(String user, String pwd, Message msg) {
-
         try {
+            final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
 
-            if (credentialsVerifier(user, pwd)) {
+            JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
+                request.addBodyParameter(k, v.toString());
+            });
 
-                Result<Long> result = feedsPrec.postMessage(user, pwd, msg);
-                if (!result.isOK())
-                    return error(result.error());
+            service.signRequest(accessToken, request);
 
-                final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
-
-                JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
-                    request.addBodyParameter(k, v.toString());
-                });
-
-                service.signRequest(accessToken, request);
-
-                Response response = service.execute(request);
-                if (response.getCode() == HTTP_OK) {
-                    var res = JSON.decode(response.getBody(), PostStatusResult.class);
-                    return ok(res.getId());
-                }
+            Response response = service.execute(request);
+            if (response.getCode() == HTTP_OK) {
+                var res = JSON.decode(response.getBody(), PostStatusResult.class);
+                return ok(res.getId());
             }
         } catch (Exception x) {
             x.printStackTrace();
@@ -134,34 +123,12 @@ public class Mastodon implements Feeds {
 
     @Override
     public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
-        try {
-            final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH + "/%d", mid));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         return error(NOT_IMPLEMENTED);
     }
 
     @Override
     public Result<Message> getMessage(String user, long mid) {
-        try {
-            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(STATUSES_PATH + "/%d" + mid));
-
-            service.signRequest(accessToken, request);
-
-            Response response = service.execute(request);
-
-            if (response.getCode() == HTTP_OK) {
-                var res = JSON.decode(response.getBody(), PostStatusResult.class);
-
-                return ok(res.toMessage());
-            }
-        } catch (Exception x) {
-            x.printStackTrace();
-        }
-        return error(Result.ErrorCode.INTERNAL_ERROR);
+        return error(NOT_IMPLEMENTED);
     }
 
     @Override
@@ -183,21 +150,7 @@ public class Mastodon implements Feeds {
     public Result<Void> deleteUserFeed(String user) {
         return null;
     }
-
-    private boolean credentialsVerifier(String user, String pwd) throws IOException, ExecutionException, InterruptedException {
-
-        try {
-            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(VERIFY_CREDENTIALS_PATH));
-
-            service.signRequest(new OAuth2AccessToken(user, pwd), request);
-
-            Response response = service.execute(request);
-
-            return response.getCode() == HTTP_OK;
-        } catch (Exception x) {
-            x.printStackTrace();
-        }
-        return false;
-    }
 }
+
+
 
