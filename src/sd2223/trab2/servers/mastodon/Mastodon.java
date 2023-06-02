@@ -38,7 +38,7 @@ public class Mastodon implements Feeds {
     // Mesquita keys
     private static final String clientKey = "7sfncEuTWxzLCnwQ1QKSaDKCvW4TCm5r-WsRHXcPJrM";
     private static final String clientSecret = "OOwaxMqAN0KV-pgLvZSxhUR0Qdf7_RrxcWto7XSNaA4";
-    private static final String accessTokenStr = "PZytT-PiZGWA_aR1noXLS79t4eiXvINrGCLuZWzd4xQ";
+    private static final String accessTokenStr = "_08uoZNcGT3wwofiE6XLIwopV0tUUdPMxz_CbuenW3Q";
 
     static final String STATUSES_PATH = "/api/v1/statuses";
     static final String TIMELINES_PATH = "/api/v1/timelines/home";
@@ -188,12 +188,19 @@ public class Mastodon implements Feeds {
     }
 
     private boolean credentialsVerifier(String user, String pwd) throws IOException, ExecutionException, InterruptedException {
-        final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(VERIFY_CREDENTIALS_PATH));
 
-        service.signRequest(accessToken, request);
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(VERIFY_CREDENTIALS_PATH));
 
-        Response response = service.execute(request);
+            service.signRequest(new OAuth2AccessToken(user, pwd), request);
 
-        return response.getCode() == HTTP_OK;
+            Response response = service.execute(request);
+
+            return response.getCode() == HTTP_OK;
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+        return false;
     }
 }
+
