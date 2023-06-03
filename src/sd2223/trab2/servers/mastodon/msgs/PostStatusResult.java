@@ -7,6 +7,9 @@ import java.time.Instant;
 
 public record PostStatusResult(String id, String content, String created_at, MastodonAccount account) {
 
+	private static final int HTML_PARAGRAPH_START_SIZE = 3; // <p> has 3 chars
+	private static final int HTML_PARAGRAPH_END_SIZE = 4;   // </p> has 4 chars
+
 	public long getId() {
 		return Long.parseLong(id);
 	}
@@ -18,7 +21,7 @@ public record PostStatusResult(String id, String content, String created_at, Mas
 
 	public String getText() {
 		int l = content.length();
-		return content.substring(3, l - 4);
+		return content.substring(HTML_PARAGRAPH_START_SIZE, l - HTML_PARAGRAPH_END_SIZE);
 	}
 
 	public Message toMessage() {

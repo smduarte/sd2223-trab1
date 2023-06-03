@@ -1,6 +1,8 @@
 package sd2223.trab2.api.java;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import sd2223.trab2.api.Message;
 

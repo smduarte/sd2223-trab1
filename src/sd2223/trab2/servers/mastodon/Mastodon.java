@@ -38,7 +38,7 @@ public class Mastodon implements Feeds {
 
     private static final String clientKey = "7sfncEuTWxzLCnwQ1QKSaDKCvW4TCm5r-WsRHXcPJrM";
     private static final String clientSecret = "OOwaxMqAN0KV-pgLvZSxhUR0Qdf7_RrxcWto7XSNaA4";
-    private static final String accessTokenStr = "_08uoZNcGT3wwofiE6XLIwopV0tUUdPMxz_CbuenW3Q";
+    private static final String accessTokenStr = "SWgW04nCA6cZPcaAc433TIL-p3JiRP1UWWK8Ti3mI98";
 
 
     static final String STATUSES_PATH = "/api/v1/statuses";
@@ -125,10 +125,12 @@ public class Mastodon implements Feeds {
     public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
 
         try {
+            //String midS = STATUSES_PATH + "/" + mid;
             final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH + "/%d", mid));
             service.signRequest(accessToken, request);
 
             Response response = service.execute(request);
+
             if (response.getCode() == HTTP_OK) {
                 return ok();
             }
@@ -142,11 +144,45 @@ public class Mastodon implements Feeds {
 
     @Override
     public Result<Message> getMessage(String user, long mid) {
-        return error(NOT_IMPLEMENTED);
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(STATUSES_PATH + "/%d", mid));
+
+            service.signRequest(accessToken, request);
+
+            Response response = service.execute(request);
+
+            System.out.println(response.getCode());
+            if (response.getCode() == HTTP_OK) {
+                var res = JSON.decode(response.getBody(), PostStatusResult.class);
+
+                return ok(res.toMessage());
+            }
+
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+        return error(Result.ErrorCode.INTERNAL_ERROR);
     }
 
     @Override
     public Result<Void> subUser(String user, String userSub, String pwd) {
+
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(ACCOUNT_FOLLOW_PATH, userSub));
+
+            service.signRequest(accessToken, request);
+
+            Response response = service.execute(request);
+
+            if (response.getCode() == HTTP_OK) {
+
+                return ok();
+            }
+
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+
         return error(NOT_IMPLEMENTED);
     }
 
