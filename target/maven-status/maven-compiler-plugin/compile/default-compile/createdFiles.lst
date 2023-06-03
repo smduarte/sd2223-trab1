@@ -76,6 +76,7 @@ sd2223\trab2\servers\soap\SoapFeedsServer.class
 sd2223\trab2\api\soap\UsersException.class
 sd2223\trab2\clients\rest\RestFeedsClient.class
 sd2223\trab2\servers\mastodon\Mastodon.class
+sd2223\trab2\Test.class
 sd2223\trab2\api\java\Users.class
 sd2223\trab2\api\Message.class
 sd2223\trab2\servers\java\JavaFeedsCommon.class
