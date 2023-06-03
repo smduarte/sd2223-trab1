@@ -42,7 +42,6 @@ public class Mastodon implements Feeds {
 
 
     static final String STATUSES_PATH = "/api/v1/statuses";
-    static final String STATUSES_PATH_ID = "/api/v1/statuses/%d";
     static final String TIMELINES_PATH = "/api/v1/timelines/home";
     static final String ACCOUNT_FOLLOWING_PATH = "/api/v1/accounts/%s/following";
     static final String VERIFY_CREDENTIALS_PATH = "/api/v1/accounts/verify_credentials";
@@ -90,7 +89,6 @@ public class Mastodon implements Feeds {
             service.signRequest(accessToken, request);
 
             Response response = service.execute(request);
-            System.out.println(response.getCode());
             if (response.getCode() == HTTP_OK) {
                 var res = JSON.decode(response.getBody(), PostStatusResult.class);
                 return ok(res.getId());
@@ -127,16 +125,13 @@ public class Mastodon implements Feeds {
     public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
 
         try {
-            final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH_ID, mid));
-
-
+            //String midS = STATUSES_PATH + "/" + mid;
+            final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH + "/%d", mid));
             service.signRequest(accessToken, request);
 
             Response response = service.execute(request);
 
             if (response.getCode() == HTTP_OK) {
-
-
                 return ok();
             }
 
@@ -149,11 +144,45 @@ public class Mastodon implements Feeds {
 
     @Override
     public Result<Message> getMessage(String user, long mid) {
-        return error(NOT_IMPLEMENTED);
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(STATUSES_PATH + "/%d", mid));
+
+            service.signRequest(accessToken, request);
+
+            Response response = service.execute(request);
+
+            System.out.println(response.getCode());
+            if (response.getCode() == HTTP_OK) {
+                var res = JSON.decode(response.getBody(), PostStatusResult.class);
+
+                return ok(res.toMessage());
+            }
+
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+        return error(Result.ErrorCode.INTERNAL_ERROR);
     }
 
     @Override
     public Result<Void> subUser(String user, String userSub, String pwd) {
+
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(ACCOUNT_FOLLOW_PATH, userSub));
+
+            service.signRequest(accessToken, request);
+
+            Response response = service.execute(request);
+
+            if (response.getCode() == HTTP_OK) {
+
+                return ok();
+            }
+
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+
         return error(NOT_IMPLEMENTED);
     }
 

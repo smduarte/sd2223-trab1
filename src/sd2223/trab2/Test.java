@@ -5,13 +5,16 @@ import sd2223.trab2.servers.mastodon.Mastodon;
 
 public class Test {
     public static void main(String[] args) {
-        var res0 = Mastodon.getInstance().postMessage("57372", "a7a31211e43f120f6c0a7706abdb45f1", new Message(2, "57372", "", "test 2 " + System.currentTimeMillis()));
+        var res0 = Mastodon.getInstance().postMessage("user1", "123456", new Message(1, "user1", "", "test 1 " + System.currentTimeMillis()));
         System.out.println(res0);
-
-       /* var res1 = Mastodon.getInstance().getMessages("user1", 0);
+/*
+        var res1 = Mastodon.getInstance().getMessages("user1", 0);
         System.out.println(res1);*/
 
-        var res2 = Mastodon.getInstance().removeFromPersonalFeed("57372", 2, "a7a31211e43f120f6c0a7706abdb45f1");
-        System.out.println(res2);
+//        var res2 = Mastodon.getInstance().removeFromPersonalFeed("user1", 1, "123456");
+//        System.out.println(res2);
+
+        var res1 = Mastodon.getInstance().getMessage("user1", 1);
+        System.out.println(res1);
     }
 }
