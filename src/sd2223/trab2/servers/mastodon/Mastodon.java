@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -18,12 +17,9 @@ import com.google.gson.reflect.TypeToken;
 import sd2223.trab2.api.Message;
 import sd2223.trab2.api.java.Feeds;
 import sd2223.trab2.api.java.Result;
-import sd2223.trab2.servers.java.JavaFeedsPreconditions;
-import sd2223.trab2.servers.java.JavaFeedsPushPreconditions;
 import sd2223.trab2.servers.mastodon.msgs.MastodonAccount;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusArgs;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusResult;
-import sd2223.trab2.servers.rest.RestUsersServer;
 import utils.JSON;
 
 import static sd2223.trab2.api.java.Result.error;
