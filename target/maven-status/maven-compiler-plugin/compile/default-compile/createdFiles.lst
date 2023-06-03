@@ -1,4 +1,5 @@
 sd2223\trab2\clients\ClientFactory$1.class
+sd2223\trab2\servers\mastodon\Mastodon$3.class
 utils\Sleep.class
 sd2223\trab2\clients\rest\RestFeedsPushClient.class
 sd2223\trab2\servers\java\JavaFeedsPreconditions.class
@@ -38,6 +39,7 @@ sd2223\trab2\clients\soap\SoapClient.class
 sd2223\trab2\servers\mastodon\msgs\PostStatusResult.class
 sd2223\trab2\api\java\ErrorResult.class
 sd2223\trab2\clients\ClientFactory.class
+sd2223\trab2\servers\mastodon\Mastodon$2.class
 sd2223\trab2\servers\kafka\sync\SyncPoint.class
 sd2223\trab2\servers\rest\RepFeeds$FeedInfo.class
 sd2223\trab2\api\java\OkResult.class
