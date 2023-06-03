@@ -18,7 +18,7 @@ public class RestProxyFeedsServer extends AbstractRestServer {
 
     @Override
     void registerResources(ResourceConfig config) {
-        config.register(RestProxyFeedsServer.class);
+        config.register(RestProxyFeedsResource.class);
     }
 
     public static void main(String[] args) throws Exception {

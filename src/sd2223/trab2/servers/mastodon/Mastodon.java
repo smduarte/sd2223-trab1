@@ -19,6 +19,7 @@ import sd2223.trab2.api.java.Feeds;
 import sd2223.trab2.api.java.Result;
 import sd2223.trab2.servers.java.JavaFeedsPreconditions;
 import sd2223.trab2.servers.java.JavaFeedsPushPreconditions;
+import sd2223.trab2.servers.mastodon.msgs.MastodonAccount;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusArgs;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusResult;
 import sd2223.trab2.servers.rest.RestUsersServer;
@@ -38,10 +39,11 @@ public class Mastodon implements Feeds {
 
     private static final String clientKey = "7sfncEuTWxzLCnwQ1QKSaDKCvW4TCm5r-WsRHXcPJrM";
     private static final String clientSecret = "OOwaxMqAN0KV-pgLvZSxhUR0Qdf7_RrxcWto7XSNaA4";
-    private static final String accessTokenStr = "SWgW04nCA6cZPcaAc433TIL-p3JiRP1UWWK8Ti3mI98";
+    private static final String accessTokenStr = "CalNnUfyLu_0QlKxAhjXpqRS1nL7iF-3hOqxDw5gHmE";
 
 
     static final String STATUSES_PATH = "/api/v1/statuses";
+    static final String STATUSES_PATH_ID = "/api/v1/statuses/%s";
     static final String TIMELINES_PATH = "/api/v1/timelines/home";
     static final String ACCOUNT_FOLLOWING_PATH = "/api/v1/accounts/%s/following";
     static final String VERIFY_CREDENTIALS_PATH = "/api/v1/accounts/verify_credentials";
@@ -125,8 +127,8 @@ public class Mastodon implements Feeds {
     public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
 
         try {
-            //String midS = STATUSES_PATH + "/" + mid;
-            final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH + "/%d", mid));
+            String midS = Long.toString(mid);
+            final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH_ID, midS));
             service.signRequest(accessToken, request);
 
             Response response = service.execute(request);
@@ -145,7 +147,8 @@ public class Mastodon implements Feeds {
     @Override
     public Result<Message> getMessage(String user, long mid) {
         try {
-            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(STATUSES_PATH + "/%d", mid));
+            String midS = Long.toString(mid);
+            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(STATUSES_PATH_ID, midS));
 
             service.signRequest(accessToken, request);
 
@@ -168,12 +171,33 @@ public class Mastodon implements Feeds {
     public Result<Void> subUser(String user, String userSub, String pwd) {
 
         try {
-            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(ACCOUNT_FOLLOW_PATH, userSub));
+            final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(ACCOUNT_FOLLOW_PATH, userSub));
 
             service.signRequest(accessToken, request);
 
             Response response = service.execute(request);
+            System.out.println(response.getCode());
+            if (response.getCode() == HTTP_OK) {
+                return ok();
+            }
 
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+
+        return error(Result.ErrorCode.INTERNAL_ERROR);
+
+    }
+
+    @Override
+    public Result<Void> unsubscribeUser(String user, String userSub, String pwd) {
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(ACCOUNT_UNFOLLOW_PATH, userSub));
+
+            service.signRequest(accessToken, request);
+
+            Response response = service.execute(request);
+            System.out.println(response.getCode());
             if (response.getCode() == HTTP_OK) {
 
                 return ok();
@@ -183,17 +207,29 @@ public class Mastodon implements Feeds {
             x.printStackTrace();
         }
 
-        return error(NOT_IMPLEMENTED);
-    }
+        return error(Result.ErrorCode.INTERNAL_ERROR);
 
-    @Override
-    public Result<Void> unsubscribeUser(String user, String userSub, String pwd) {
-        return error(NOT_IMPLEMENTED);
     }
 
     @Override
     public Result<List<String>> listSubs(String user) {
-        return error(NOT_IMPLEMENTED);
+        try {
+            final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(ACCOUNT_FOLLOWING_PATH, user));
+
+            service.signRequest(accessToken, request);
+
+            Response response = service.execute(request);
+
+            if (response.getCode() == HTTP_OK) {
+                List<String> res = JSON.decode(response.getBody(), new TypeToken<List<String>>() {
+                });
+
+                return ok(res);
+            }
+        } catch (Exception x) {
+            x.printStackTrace();
+        }
+        return error(Result.ErrorCode.INTERNAL_ERROR);
     }
 
     @Override
