@@ -1,6 +1,7 @@
 package sd2223.trab2.servers.rest;
 
 import com.google.gson.Gson;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import sd2223.trab2.api.Message;
 import sd2223.trab2.api.java.Feeds;
 import sd2223.trab2.api.java.Result;
@@ -8,12 +9,15 @@ import sd2223.trab2.servers.Domain;
 import sd2223.trab2.servers.java.JavaFeedsCommon;
 import sd2223.trab2.servers.kafka.KafkaPublisher;
 import sd2223.trab2.servers.kafka.KafkaSubscriber;
+import sd2223.trab2.servers.kafka.RecordProcessor;
 import sd2223.trab2.servers.kafka.sync.SyncPoint;
+import utils.JSON;
 
 import static sd2223.trab2.api.java.Result.ErrorCode.*;
 import static sd2223.trab2.api.java.Result.error;
 
 
+import java.lang.runtime.SwitchBootstraps;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class RepFeeds<T extends Feeds> implements Feeds {
+public class RepFeeds<T extends Feeds> implements Feeds, RecordProcessor {
 
     private static final long FEEDS_MID_PREFIX = 1_000_000_000;
 
@@ -46,10 +50,25 @@ public class RepFeeds<T extends Feeds> implements Feeds {
         this.preconditions = preconditions;
         publisher = KafkaPublisher.createPublisher(KAFKA_BROKERS);
         subscriber = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of("kafkadirectory"), "earliest");
+
+        subscriber.start(false, (r) -> onReceive(r));
+    }
+
+    @Override
+    public void onReceive(ConsumerRecord<String, String> r) {
+
+        var key = r.key();
+        switch (key) {
+            case "post":
+                receivePostMsg(r.value(), r.offset());
+                break;
+            case "":
+                break;
+        }
     }
 
 
-    static protected record FeedInfo(String user, Set<Long> messages, Set<String> following, Set<String> followees) {
+    static protected record FeedInfo(String user, Set<Long> messages, Set<String> following, Set<String> followers) {
         public FeedInfo(String user) {
             this(user, new HashSet<>(), new HashSet<>(), ConcurrentHashMap.newKeySet());
         }
@@ -61,26 +80,7 @@ public class RepFeeds<T extends Feeds> implements Feeds {
 
     @Override
     public Result<Long> postMessage(String user, String pwd, Message msg) {
-
-        var preconditionsResult = preconditions.postMessage(user, pwd, msg);
-        if (!preconditionsResult.isOK())
-            return preconditionsResult;
-
-        Long mid = serial.incrementAndGet();
-        msg.setId(mid);
-        msg.setCreationTime(System.currentTimeMillis());
-
-        FeedInfo ufi = feeds.computeIfAbsent(user, FeedInfo::new);
-        synchronized (ufi.user()) {
-            ufi.messages().add(mid);
-            messages.putIfAbsent(mid, msg);
-        }
-        var offset = publisher.publish("topic1", "post", json.toJson(msg));
-        if (offset < 0) {
-            return error(INTERNAL_ERROR);
-        }
-        sync.waitForResult(offset);
-        return Result.ok(mid);
+        return null;
     }
 
     @Override
@@ -117,4 +117,27 @@ public class RepFeeds<T extends Feeds> implements Feeds {
     public Result<Void> deleteUserFeed(String user) {
         return null;
     }
+
+    private void receivePostMsg(String value, long offset) {
+        Message message = JSON.decode(value, Message.class);
+
+        FeedInfo ufi = feeds.computeIfAbsent(message.getUser(), FeedInfo::new);
+        synchronized (ufi.user()) {
+            ufi.messages().add(message.getId());
+            messages.putIfAbsent(message.getId(), message);
+        }
+        sync.setResult(offset, Result.ok(message.getId()));
+    }
+
+    private void receiveSubscribe(String value, long offset){
+
+    }
+    private void receiveUnsubscribe(String value, long offset){
+
+    }
+    private void receiveRemoveMessage(String value, long offset){
+
+    }
+
+
 }
