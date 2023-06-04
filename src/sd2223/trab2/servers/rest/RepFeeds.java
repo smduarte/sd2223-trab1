@@ -1,5 +1,6 @@
 package sd2223.trab2.servers.rest;
 
+import com.google.gson.Gson;
 import sd2223.trab2.api.Message;
 import sd2223.trab2.api.java.Feeds;
 import sd2223.trab2.api.java.Result;
@@ -8,6 +9,10 @@ import sd2223.trab2.servers.java.JavaFeedsCommon;
 import sd2223.trab2.servers.kafka.KafkaPublisher;
 import sd2223.trab2.servers.kafka.KafkaSubscriber;
 import sd2223.trab2.servers.kafka.sync.SyncPoint;
+
+import static sd2223.trab2.api.java.Result.ErrorCode.*;
+import static sd2223.trab2.api.java.Result.error;
+
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +23,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class RepFeeds<T extends Feeds> implements Feeds {
 
+    private static final long FEEDS_MID_PREFIX = 1_000_000_000;
+
     private KafkaPublisher publisher;
     private KafkaSubscriber subscriber;
 
@@ -25,7 +32,7 @@ public class RepFeeds<T extends Feeds> implements Feeds {
 
     final String KAFKA_BROKERS = "kafka:9092";
 
-    private static final long FEEDS_MID_PREFIX = 1_000_000_000;
+    private Gson json;
 
 
     protected AtomicLong serial = new AtomicLong(Domain.uuid() * FEEDS_MID_PREFIX);
@@ -33,12 +40,14 @@ public class RepFeeds<T extends Feeds> implements Feeds {
     final protected T preconditions;
 
 
-    public RepFeeds(T preconditions) {
-        this.preconditions = preconditions;
+    public RepFeeds(T preconditions, SyncPoint sync) {
+        json = new Gson();
         this.sync = sync;
+        this.preconditions = preconditions;
         publisher = KafkaPublisher.createPublisher(KAFKA_BROKERS);
         subscriber = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of("kafkadirectory"), "earliest");
     }
+
 
     static protected record FeedInfo(String user, Set<Long> messages, Set<String> following, Set<String> followees) {
         public FeedInfo(String user) {
@@ -66,6 +75,11 @@ public class RepFeeds<T extends Feeds> implements Feeds {
             ufi.messages().add(mid);
             messages.putIfAbsent(mid, msg);
         }
+        var offset = publisher.publish("topic1", "post", json.toJson(msg));
+        if (offset < 0) {
+            return error(INTERNAL_ERROR);
+        }
+        sync.waitForResult(offset);
         return Result.ok(mid);
     }
 

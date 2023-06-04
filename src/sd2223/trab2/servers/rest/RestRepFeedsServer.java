@@ -3,6 +3,7 @@ package sd2223.trab2.servers.rest;
 import org.glassfish.jersey.server.ResourceConfig;
 import sd2223.trab2.api.java.Feeds;
 import sd2223.trab2.servers.Domain;
+import sd2223.trab2.servers.java.JavaFeedsPushPreconditions;
 import sd2223.trab2.servers.kafka.sync.SyncPoint;
 import utils.Args;
 
@@ -23,7 +24,7 @@ public class RestRepFeedsServer extends AbstractRestServer {
     protected void registerResources(ResourceConfig config) {
 
         SyncPoint<String> sync = new SyncPoint<>();
-        config.register(new RestRepFeedsResource(sync));
+        config.register(new RestRepFeedsResource(sync, new RepFeeds(new JavaFeedsPushPreconditions(), sync)));
         config.register(GenericExceptionMapper.class);
 
     }

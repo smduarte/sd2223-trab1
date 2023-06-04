@@ -17,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import sd2223.trab2.api.Message;
 import sd2223.trab2.api.java.Feeds;
 import sd2223.trab2.api.java.Result;
+import sd2223.trab2.servers.java.JavaFeedsPushPreconditions;
 import sd2223.trab2.servers.mastodon.msgs.MastodonAccount;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusArgs;
 import sd2223.trab2.servers.mastodon.msgs.PostStatusResult;
@@ -55,12 +56,15 @@ public class Mastodon implements Feeds {
     protected OAuth20Service service;
     protected OAuth2AccessToken accessToken;
 
+    private JavaFeedsPushPreconditions preconditions;
+
     private static Mastodon impl;
 
     protected Mastodon() {
         try {
             service = new ServiceBuilder(clientKey).apiSecret(clientSecret).build(MastodonApi.instance());
             accessToken = new OAuth2AccessToken(accessTokenStr);
+            preconditions = new JavaFeedsPushPreconditions();
         } catch (Exception x) {
             x.printStackTrace();
             System.exit(0);
@@ -81,6 +85,10 @@ public class Mastodon implements Feeds {
     @Override
     public Result<Long> postMessage(String user, String pwd, Message msg) {
         try {
+            Result<Long> result = preconditions.postMessage(user, pwd, msg);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
 
             JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
@@ -103,6 +111,10 @@ public class Mastodon implements Feeds {
     @Override
     public Result<List<Message>> getMessages(String user, long time) {
         try {
+            Result<List<Message>> result = preconditions.getMessages(user, time);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(TIMELINES_PATH));
 
             service.signRequest(accessToken, request);
@@ -133,6 +145,10 @@ public class Mastodon implements Feeds {
     public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
 
         try {
+            Result<Void> result = preconditions.removeFromPersonalFeed(user, mid, pwd);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(STATUSES_PATH_ID, mid));
             service.signRequest(accessToken, request);
 
@@ -152,6 +168,10 @@ public class Mastodon implements Feeds {
     @Override
     public Result<Message> getMessage(String user, long mid) {
         try {
+            Result<Message> result = preconditions.getMessage(user, mid);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(STATUSES_PATH_ID, mid));
 
             service.signRequest(accessToken, request);
@@ -177,6 +197,10 @@ public class Mastodon implements Feeds {
     public Result<Void> subUser(String user, String userSub, String pwd) {
 
         try {
+            Result<Void> result = preconditions.subUser(user, userSub, pwd);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             List<MastodonAccount> accs = getUsersList(userSub);
             if (!accs.isEmpty()) {
                 MastodonAccount userSubAcc = accs.get(0);
@@ -202,6 +226,10 @@ public class Mastodon implements Feeds {
     @Override
     public Result<Void> unsubscribeUser(String user, String userSub, String pwd) {
         try {
+            Result<Void> result = preconditions.unsubscribeUser(user, userSub, pwd);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             List<MastodonAccount> accs = getUsersList(userSub);
             if (!accs.isEmpty()) {
                 MastodonAccount userSubAcc = accs.get(0);
@@ -228,6 +256,10 @@ public class Mastodon implements Feeds {
     @Override
     public Result<List<String>> listSubs(String user) {
         try {
+            Result<List<String>> result = preconditions.listSubs(user);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(ACCOUNT_FOLLOWING_PATH, user));
 
             service.signRequest(accessToken, request);
@@ -250,6 +282,10 @@ public class Mastodon implements Feeds {
     public Result<Void> deleteUserFeed(String user) {
 
         try {
+            Result<Void> result = preconditions.deleteUserFeed(user);
+            if (!result.isOK()) {
+                return error(result.error());
+            }
             final OAuthRequest request = new OAuthRequest(Verb.DELETE, getEndpoint(ACCOUNT_GET_PATH, user));
             service.signRequest(accessToken, request);
 

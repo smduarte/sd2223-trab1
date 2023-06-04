@@ -21,100 +21,100 @@ import sd2223.trab2.api.java.Result;
 
 public class JavaFeedsPush extends JavaFeedsCommon<FeedsPush> implements FeedsPush {
 
-	private static final long PERMANENT_REMOVAL_DELAY = 30;
-	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	final Map<Long, Set<String>> msgs2users = new ConcurrentHashMap<>();
+    private static final long PERMANENT_REMOVAL_DELAY = 30;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    final Map<Long, Set<String>> msgs2users = new ConcurrentHashMap<>();
 
-	public JavaFeedsPush( ){
-		super( new JavaFeedsPushPreconditions());
-	}
-	
-	@Override
-	public Result<Long> postMessage(String user, String pwd, Message msg) {
-		var res = super.postMessage(user, pwd, msg);
-		if (res.isOK()) {
-			var followees = feeds.get(user).followees();
+    public JavaFeedsPush() {
+        super(new JavaFeedsPushPreconditions());
+    }
 
-			var subscribers = followees.stream()
-					.map(FeedUser::from)
-					.collect(Collectors.groupingBy(FeedUser::domain, Collectors.mapping(FeedUser::user, Collectors.toSet())));
+    @Override
+    public Result<Long> postMessage(String user, String pwd, Message msg) {
+        var res = super.postMessage(user, pwd, msg);
+        if (res.isOK()) {
+            var followers = feeds.get(user).followers();
 
-			scheduler.execute( () -> {
-				for( var e : subscribers.entrySet()) {
-					var domain = e.getKey();
-					var users = e.getValue();
-					while(! FeedsPushClients.get(domain).push_PushMessage(new PushMessage(users, msg)).isOK());						
-				}
-			});
-		}
-		return res;
-	}
-	
-	@Override
-	public Result<Message> getMessage(String user, long mid) {
-		var preconditionsResult = preconditions.getMessage(user, mid);
-		if( ! preconditionsResult.isOK() )
-			return preconditionsResult;
+            var subscribers = followers.stream()
+                    .map(FeedUser::from)
+                    .collect(Collectors.groupingBy(FeedUser::domain, Collectors.mapping(FeedUser::user, Collectors.toSet())));
 
-		var ufi = feeds.get(user);
-		if (ufi == null)
-			return error(NOT_FOUND);
-		
-		synchronized (ufi.user()) {
-			if (!ufi.messages().contains(mid))
-				return error(NOT_FOUND);
+            scheduler.execute(() -> {
+                for (var e : subscribers.entrySet()) {
+                    var domain = e.getKey();
+                    var users = e.getValue();
+                    while (!FeedsPushClients.get(domain).push_PushMessage(new PushMessage(users, msg)).isOK()) ;
+                }
+            });
+        }
+        return res;
+    }
 
-			return ok(messages.get(mid));
-		}
-	}
+    @Override
+    public Result<Message> getMessage(String user, long mid) {
+        var preconditionsResult = preconditions.getMessage(user, mid);
+        if (!preconditionsResult.isOK())
+            return preconditionsResult;
 
-	@Override
-	public Result<List<Message>> getMessages(String user, long time) {
-		var preconditionsResult = preconditions.getMessages(user, time);
-		if( ! preconditionsResult.isOK() )
-			return preconditionsResult;
+        var ufi = feeds.get(user);
+        if (ufi == null)
+            return error(NOT_FOUND);
 
-		return ok(super.getTimeFilteredPersonalFeed(user, time)) ;
-	}
-	
-	@Override
-	public Result<Void> push_updateFollowers(String user, String follower, boolean following) {
-		
-		var preconditionsResult = preconditions.push_updateFollowers(user, follower, following);
-		if( ! preconditionsResult.isOK() )
-			return preconditionsResult;
+        synchronized (ufi.user()) {
+            if (!ufi.messages().contains(mid))
+                return error(NOT_FOUND);
 
-		var followees = feeds.computeIfAbsent(user, FeedInfo::new ).followees();
-		
-		if( following )
-			followees.add(follower);
-		else
-			followees.remove(follower);
-		
-		return ok();
-	}
+            return ok(messages.get(mid));
+        }
+    }
 
-	@Override
-	public Result<Void> push_PushMessage(PushMessage pm) {
-		var msg = pm.getMessage();
-		super.messages.put(msg.getId(), msg);
+    @Override
+    public Result<List<Message>> getMessages(String user, long time) {
+        var preconditionsResult = preconditions.getMessages(user, time);
+        if (!preconditionsResult.isOK())
+            return preconditionsResult;
 
-		for( var s : pm.getSubscribers())
-			feeds.computeIfAbsent(s, FeedInfo::new).messages().add(msg.getId());
-		
-		msgs2users.computeIfAbsent(msg.getId(), (k) -> ConcurrentHashMap.newKeySet()).addAll(pm.getSubscribers());
-		return ok();
-	}
-	
-	@Override
-	protected void deleteFromUserFeed( String user, Set<Long> mids ) {
-		for( var mid : mids ) {
-			var references = msgs2users.get(mid);
-			if (references != null && references.remove(user) && references.isEmpty()) {
-				scheduler.schedule(() -> {
-					super.messages.remove(mid);					
-				}, PERMANENT_REMOVAL_DELAY, TimeUnit.SECONDS);
-			}
-		}
-	}
+        return ok(super.getTimeFilteredPersonalFeed(user, time));
+    }
+
+    @Override
+    public Result<Void> push_updateFollowers(String user, String follower, boolean following) {
+
+        var preconditionsResult = preconditions.push_updateFollowers(user, follower, following);
+        if (!preconditionsResult.isOK())
+            return preconditionsResult;
+
+        var followers = feeds.computeIfAbsent(user, FeedInfo::new).followers();
+
+        if (following)
+            followers.add(follower);
+        else
+            followers.remove(follower);
+
+        return ok();
+    }
+
+    @Override
+    public Result<Void> push_PushMessage(PushMessage pm) {
+        var msg = pm.getMessage();
+        super.messages.put(msg.getId(), msg);
+
+        for (var s : pm.getSubscribers())
+            feeds.computeIfAbsent(s, FeedInfo::new).messages().add(msg.getId());
+
+        msgs2users.computeIfAbsent(msg.getId(), (k) -> ConcurrentHashMap.newKeySet()).addAll(pm.getSubscribers());
+        return ok();
+    }
+
+    @Override
+    protected void deleteFromUserFeed(String user, Set<Long> mids) {
+        for (var mid : mids) {
+            var references = msgs2users.get(mid);
+            if (references != null && references.remove(user) && references.isEmpty()) {
+                scheduler.schedule(() -> {
+                    super.messages.remove(mid);
+                }, PERMANENT_REMOVAL_DELAY, TimeUnit.SECONDS);
+            }
+        }
+    }
 }
